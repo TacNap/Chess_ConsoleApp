@@ -14,28 +14,34 @@ namespace Chess_ConsoleApp
         private char symbol;
         private int x;
         private int y;
+        private bool isWhite; // Change to ENUM
+        private bool living;
 
         private static int count;
         
         // PROPERTIES
+        // Type: King, Queen etc..
         public string Type
         {
             get;
             set;
         }
 
+        // Symbol to be rendered to console
         public char Symbol
         {
             get;
             set;
         }
 
+        // Unique ID for each instanced object
         public int ID
         {
             get;
             set;
         }
 
+        // Total number of pieces in play
         public static int Count
         {
             get;
@@ -43,23 +49,42 @@ namespace Chess_ConsoleApp
 
         }
 
+        // X Position on game board
         public int X // Will need validators
         {
             get;
             set;
         }
 
+        // Y Position on game board 
         public int Y // Will need validators
         {
             get;
             set;
         }
 
-        // CONSTRUCTORS
-        public Piece(int x, int y)
+        public bool IsWhite
         {
+            get;
+            private set;
+        }
+
+        public bool Living
+        {
+            get;
+            set;
+
+        }
+
+        // CONSTRUCTORS
+        public Piece(int x, int y, bool isWhite)
+        {
+            // Is it good practice to put these here?
             this.X = x;
             this.Y = y;
+            this.IsWhite = isWhite;
+            this.ID = ++Count;
+            this.Living = true;
         }
 
         // METHODS
@@ -74,22 +99,24 @@ namespace Chess_ConsoleApp
 
         }
 
-        public void MovePiece(ChessBoard board, int targetX, int targetY)
-        {
-            // board.board[targetX, targetY] 
-        }
-
         
     }
 
     public class Pawn : Piece
     {
-        public Pawn(int x, int y) : base(x, y)
+        public Pawn(int x, int y, bool isWhite) : base(x, y, isWhite)
         {
             this.Type = "Pawn";
-            this.Symbol = 'P';
-            this.ID = Piece.Count;
-            Piece.Count++;
+            this.X = x;
+            this.Y = y;
+            if (isWhite)
+            {
+                this.Symbol = 'p'; // ♙
+            } else
+            {
+                this.Symbol = 'P'; // ♟
+            }
+            
         }
 
 
