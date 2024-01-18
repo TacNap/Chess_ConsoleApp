@@ -90,20 +90,26 @@ namespace Chess_ConsoleApp
         // METHODS
         public void PrintInfo()
         {
+            Console.WriteLine("/ / / / / / / /");
             Console.WriteLine("Info about this Piece:");
             Console.WriteLine("Type: {0}", Type);
             Console.WriteLine("Symbol: {0}", Symbol);
             Console.WriteLine("ID: {0}", ID);
-            Console.WriteLine("Current Location: {0}, {1}", X, Y);
-            Console.WriteLine("Total Pieces in play: {0}",Piece.Count);
+            Console.WriteLine("Current Location: X:{0}, Y:{1}", X, Y);
+            //Console.WriteLine("Total Pieces in play: {0}",Piece.Count);
+            Console.WriteLine("/ / / / / / / /");
 
         }
+
+        public abstract void CalculateMoveset(ChessBoard board);
 
         
     }
 
     public class Pawn : Piece
     {
+        // FIELDS
+        // CONSTRUCTOR
         public Pawn(int x, int y, bool isWhite) : base(x, y, isWhite)
         {
             this.Type = "Pawn";
@@ -119,6 +125,35 @@ namespace Chess_ConsoleApp
             
         }
 
+        public override void CalculateMoveset(ChessBoard board)
+        {
+            // Requires Implementation
+        }
+    }
 
+    public class Rook : Piece
+    {
+        // FIELDS
+        // CONSTRUCTOR
+        public Rook(int x, int y, bool isWhite) : base(x, y, isWhite)
+        {
+            this.Type = "Rook";
+            this.X = x;
+            this.Y = y;
+            if (isWhite)
+            {
+                this.Symbol = 'r';
+            } else
+            {
+                this.Symbol = 'R';
+            }
+        }
+
+        public override void CalculateMoveset(ChessBoard board)
+        {
+            // moveset array = calculate each direction
+            // until a Null is hit
+
+        }
     }
 }

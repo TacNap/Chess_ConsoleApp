@@ -13,6 +13,11 @@ namespace Chess_ConsoleApp
         private char whiteCell = '\u2591'; // ░ 
         private char blackCell = '\u2588'; // █
         private List<char> graveyard;
+        private Dictionary<string, int> dict;
+        
+
+        // to be implemented
+        // private int turnCounter;
 
         // PROPERTIES
         public Piece[,] Board // Will need validators
@@ -27,13 +32,89 @@ namespace Chess_ConsoleApp
             set;
         }
 
+        public Dictionary<string, int> Dict
+        {
+            get;
+            set;
+        }
+
         // CONSTRUCTORS
         public ChessBoard()
         {
            Board = new Piece[8, 8];
+           Dict = new Dictionary<string, int>
+                {
+            {"A", 0},
+            {"B", 1},
+            {"C", 2},
+            {"D", 3},
+            {"E", 4},
+            {"F", 5},
+            {"G", 6},
+                };
         }
 
+
         // METHODS
+        public void Iterate()
+        {
+            int sourceRow;
+            string sourceCol;
+            int targetRow;
+            string targetCol;
+
+            Console.WriteLine("Input: ");
+            string input = Console.ReadLine();
+
+            string[] parts = input.Split(' ');
+            ParseInput(parts[0], out sourceRow, out sourceCol);
+            ParseInput(parts[1], out targetRow, out targetCol);
+
+            // Requires calculation of moveset
+            // And validation
+
+            MovePiece(
+                Board[sourceRow, Dict[sourceCol]],
+                targetRow,
+                Dict[targetCol]
+                );
+
+            PrintBoard();
+
+
+            // Split based on space
+
+            // receive user input
+            // check if the piece can move there:
+            //      Calculate piece moveset
+            //      Check if target X,Y is in moveset
+            // if valid
+            //      Move piece
+            //      Render board
+            //      Iterate move counter
+            //      Switch team
+            // if !valid
+            //      ask user to try again, return to start of loop
+        }
+
+        public void ParseInput(string input, out int row, out string col)
+        {
+            // Extract the numeric and alpha parts
+            string num = "";
+            string alpha = "";
+
+            foreach(char c in input)
+            {
+                if (char.IsDigit(c))
+                    num += c;
+                else
+                    alpha += c;
+            }
+
+            row = int.Parse(num)-1; // -1 to align with indices
+            col = alpha;
+        }
+
         public void InitBoard()
         {
             Graveyard = new List<char>();
@@ -45,13 +126,12 @@ namespace Chess_ConsoleApp
                 Board[pbRow, i] = new Pawn(pbRow, i, false);
 
             }
-            Console.WriteLine(Piece.Count);
         }
 
         public void PrintBoard()
         {
             Console.WriteLine("\n");
-            for(int row = 0; row < 8; row++)
+            for(int row = 7; row >= 0; row--) // Reversed to match input for rows
             {
                 for(int col = 0; col < 8; col++)
                 {
@@ -73,7 +153,7 @@ namespace Chess_ConsoleApp
             }
             // Render graveyard list
             // Will not need to be cleared once Pieces can add / remove themselves from graveyard
-            Console.WriteLine("Graveyard:\n");
+            Console.WriteLine("\nGraveyard:\n");
             
             for(int i = 0; i < Graveyard.Count; i++)
             {
