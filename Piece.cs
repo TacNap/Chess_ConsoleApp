@@ -12,10 +12,11 @@ namespace Chess_ConsoleApp
         private int id;
         private string type;
         private char symbol;
-        private int x;
-        private int y;
+        private int row;
+        private int col;
         private bool isWhite; // Change to ENUM
         private bool living;
+        private bool firstMove;
 
         private static int count;
         
@@ -49,15 +50,15 @@ namespace Chess_ConsoleApp
 
         }
 
-        // X Position on game board
-        public int X // Will need validators
+        // Row Position on game board
+        public int Row // Will need validators
         {
             get;
             set;
         }
 
-        // Y Position on game board 
-        public int Y // Will need validators
+        // Column Position on game board 
+        public int Col // Will need validators
         {
             get;
             set;
@@ -76,15 +77,34 @@ namespace Chess_ConsoleApp
 
         }
 
+        public string Colour
+        {
+            get;
+            set;
+        }
+
+        public abstract List<(int, int)> Moveset
+        {
+            get;
+            set;
+        }
+
+        public bool FirstMove
+        {
+            get;
+            set;
+        }
+
         // CONSTRUCTORS
-        public Piece(int x, int y, bool isWhite)
+        public Piece(int row, int col, bool isWhite)
         {
             // Is it good practice to put these here?
-            this.X = x;
-            this.Y = y;
+            this.Row = row;
+            this.Col = col;
             this.IsWhite = isWhite;
             this.ID = ++Count;
             this.Living = true;
+            this.firstMove = true;
         }
 
         // METHODS
@@ -95,13 +115,13 @@ namespace Chess_ConsoleApp
             Console.WriteLine("Type: {0}", Type);
             Console.WriteLine("Symbol: {0}", Symbol);
             Console.WriteLine("ID: {0}", ID);
-            Console.WriteLine("Current Location: X:{0}, Y:{1}", X, Y);
+            Console.WriteLine("Current Location: Row:{0}, Col:{1}", Row, Col);
             //Console.WriteLine("Total Pieces in play: {0}",Piece.Count);
             Console.WriteLine("/ / / / / / / /");
 
         }
 
-        public abstract void CalculateMoveset(ChessBoard board);
+        public abstract void CalculateMoveset(Piece[,] board);
 
         
     }
@@ -109,51 +129,170 @@ namespace Chess_ConsoleApp
     public class Pawn : Piece
     {
         // FIELDS
+        
+
+        // PROPERTIES
+        
+        // Holds the currently available spaces to move to
+        public override List<(int, int)> Moveset {
+            get;
+            set;
+        }
+
         // CONSTRUCTOR
-        public Pawn(int x, int y, bool isWhite) : base(x, y, isWhite)
+        public Pawn(int row, int col, bool isWhite) : base(row, col, isWhite)
         {
             this.Type = "Pawn";
-            this.X = x;
-            this.Y = y;
+            this.Row = row;
+            this.Col = col;
+            this.FirstMove = true;
             if (isWhite)
             {
-                this.Symbol = 'p'; // ♙
+                this.Symbol = 'P'; // ♙
+                this.Colour = "#a61782";
             } else
             {
                 this.Symbol = 'P'; // ♟
+                this.Colour = "black";
             }
             
         }
 
-        public override void CalculateMoveset(ChessBoard board)
+        public override void CalculateMoveset(Piece[,] board)
         {
-            // Requires Implementation
-        }
-    }
+            Moveset = new List<(int, int)>();
 
-    public class Rook : Piece
-    {
-        // FIELDS
-        // CONSTRUCTOR
-        public Rook(int x, int y, bool isWhite) : base(x, y, isWhite)
-        {
-            this.Type = "Rook";
-            this.X = x;
-            this.Y = y;
-            if (isWhite)
+            if(this.IsWhite)
             {
-                this.Symbol = 'r';
+                // White Pawn Movement
+                // Move 2 spaces
+                if(
+                    FirstMove && 
+                    board[Row + 1, Col] == null &&
+                    board[Row + 2, Col ] == null
+                    )
+                {
+                    Moveset.Add((Row + 2, Col));
+                }
+
+                // Move 1 space
+                if (
+                    Row + 1 <= 7 &&
+                    board[Row + 1, Col] == null
+                    )
+                {
+                    Moveset.Add((Row + 1, Col));
+                }
+
+                // Attacking moves
+                // Forward-Left
+                if (
+                    Col - 1 >= 0 && // Within bounds
+                    Row + 1 <= 7 &&
+                    board[Row + 1, Col - 1] != null && // If there's a piece there
+                    board[Row + 1, Col - 1].IsWhite != this.IsWhite // If it's the opposition
+                    )
+                {
+                    Moveset.Add((Row + 1, Col - 1));
+                }
+
+                // Forward-Right
+                if (
+                    Col + 1 <= 7 &&
+                    Row + 1 <= 7 &&
+                    board[Row + 1, Col + 1] != null && 
+                    board[Row + 1, Col + 1].IsWhite != this.IsWhite
+                    )
+                {
+                    Moveset.Add((Row + 1, Col + 1));
+                }
             } else
             {
-                this.Symbol = 'R';
-            }
-        }
+                // Black Pawn Movement
+                // Move 2 spaces
+                if (
+                    FirstMove &&
+                    board[Row - 1, Col] == null &&
+                    board[Row - 2, Col] == null
+                    )
+                {
+                    Moveset.Add((Row - 2, Col));
+                }
 
-        public override void CalculateMoveset(ChessBoard board)
-        {
-            // moveset array = calculate each direction
-            // until a Null is hit
+                // Move 1 space
+                if (
+                    Row - 1 >= 0 &&
+                    board[Row - 1, Col] == null
+                    )
+                {
+                    Moveset.Add((Row - 1, Col));
+                }
+
+                // Attacking moves
+                // Forward-Left
+                if (
+                    Col - 1 >= 0 && // Within bounds
+                    Row - 1 >= 0 &&
+                    board[Row - 1, Col - 1] != null && // If there's a piece there
+                    board[Row - 1, Col - 1].IsWhite != this.IsWhite // If it's the opposition
+                    )
+                {
+                    Moveset.Add((Row - 1, Col - 1));
+                }
+
+                // Forward-Right
+                if (
+                    Col + 1 <= 7 &&
+                    Row - 1 >= 0 &&
+                    board[Row - 1, Col + 1] != null &&
+                    board[Row - 1, Col + 1].IsWhite != this.IsWhite
+                    )
+                {
+                    Moveset.Add((Row - 1, Col + 1));
+                }
+            }
 
         }
     }
+
+    public class Queen : Piece
+    {
+        // FIELDS
+
+
+        // PROPERTIES
+
+        // Holds the currently available spaces to move to
+        public override List<(int, int)> Moveset
+        {
+            get;
+            set;
+        }
+
+        // CONSTRUCTOR
+        public Queen(int row, int col, bool isWhite) : base(row, col, isWhite)
+        {
+            this.Type = "Queen";
+            this.Row = row;
+            this.Col = col;
+            this.FirstMove = true;
+            if (isWhite)
+            {
+                this.Symbol = 'Q'; // ♙
+                this.Colour = "#a61782";
+            }
+            else
+            {
+                this.Symbol = 'Q'; // ♟
+                this.Colour = "black";
+            }
+
+        }
+        public override void CalculateMoveset(Piece[,] board)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
 }
