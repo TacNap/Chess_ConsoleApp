@@ -13,8 +13,8 @@ namespace Chess_ConsoleApp
         private Piece[,] board;
         private char whiteCell = '\u2591'; // ░ 
         private char blackCell = '\u2588'; // █
-        private List<string> graveyard;
         private Dictionary<string, int> dict;
+        private Graveyard grave = new Graveyard();
 
 
         // to be implemented
@@ -26,14 +26,20 @@ namespace Chess_ConsoleApp
             get;
             set;
         }
-
-        public List<string> Graveyard
+    
+        public Dictionary<string, int> Dict
         {
             get;
             set;
         }
 
-        public Dictionary<string, int> Dict
+        private bool IsWhiteTurn
+        {
+            get;
+            set;
+        }
+
+        private int TurnCounter
         {
             get;
             set;
@@ -43,6 +49,8 @@ namespace Chess_ConsoleApp
         public ChessBoard()
         {
             Board = new Piece[8, 8];
+            IsWhiteTurn = true;
+            TurnCounter = 1;
             Dict = new Dictionary<string, int>
                 {
             {"a", 0},
@@ -60,17 +68,26 @@ namespace Chess_ConsoleApp
         // METHODS
         public void Iterate()
         {
-            var rule = new Rule("[red]Input[/]"); // Refer to team colour & turn counter here
+            // Header
+            string turn = IsWhiteTurn ? "White to Move" : "Black to Move";
+            var rule = new Rule($"[red]({TurnCounter}) {turn}[/]"); // Refer to team colour & turn counter here
             rule.Style = Style.Parse("red");
             AnsiConsole.Write(rule);
 
+            // Take CLI Input. Validates only the input format
             ReceiveMoveInput(out int sourceRow, out int sourceCol, out int targetRow, out int targetCol);
-            if (Board[sourceRow, sourceCol] != null)
+
+            if (Board[sourceRow, sourceCol] != null) // If there is no piece to move
             {
+                
+                // Check if valid move for that piece
                 Board[sourceRow, sourceCol].CalculateMoveset(Board);
-                if(ValidateMoveInput(Board[sourceRow, sourceCol].Moveset, targetRow, targetCol))
+                if(
+                    ValidateMoveInput(Board[sourceRow, sourceCol], targetRow, targetCol)                    ) 
                 {
                     MovePiece(Board[sourceRow, sourceCol],targetRow,targetCol);
+                    IsWhiteTurn = !IsWhiteTurn;
+                    TurnCounter++;
                 } else
                 {
                     Console.WriteLine("Not a valid move!");
@@ -81,25 +98,10 @@ namespace Chess_ConsoleApp
             }
             
             PrintBoard();
-
-
-            // Split based on space
-
-            // receive user input
-            // check if the piece can move there:
-            //      Calculate piece moveset
-            //      Check if target Row,Col is in moveset
-            // if valid
-            //      Move piece
-            //      Render board
-            //      Iterate move counter
-            //      Switch team
-            // if !valid
-            //      ask user to try again, return to start of loop
         }
 
         /// <summary>
-        /// Takes user input in the form of standard Chess Algebraic notation, 'Piece Target'
+        /// Takes user input in the form of 'Piece Target'
         /// Splits input accordingly,
         /// Returns 4 ints, referring to Row and Column of Piece and Target. 
         /// </summary>
@@ -121,11 +123,14 @@ namespace Chess_ConsoleApp
             targetCol = Dict[S_targetCol];
         } 
 
-        public bool ValidateMoveInput(List<(int, int)> moveset, int targetRow, int targetCol)
+        public bool ValidateMoveInput(Piece piece, int targetRow, int targetCol)
         {
-
+            if(piece.IsWhite != IsWhiteTurn)
+            {
+                return false;
+            }
             (int, int) proposedMove = (targetRow, targetCol);
-            return(moveset.Contains(proposedMove));
+            return(piece.Moveset.Contains(proposedMove));
         }
 
         public void ParseInput(string input, out int row, out string col)
@@ -148,7 +153,6 @@ namespace Chess_ConsoleApp
 
         public void InitBoard()
         {
-            Graveyard = new List<string>();
             int pwRow = 1; // Row for White Pawns
             int pbRow = 6; // Row for Black Pawns
             for(int i = 0; i < 8; i++)
@@ -160,6 +164,11 @@ namespace Chess_ConsoleApp
 
             Board[0, 3] = new Queen(0, 3, true);
             Board[7, 3] = new Queen(7, 3, false);
+
+            // DEBUG PIECES
+            Board[4, 4] = new Queen(4, 4, false);
+            Board[3, 3] = new Queen(3, 3, true);
+
 
         }
 
@@ -185,7 +194,7 @@ namespace Chess_ConsoleApp
                     piece = Board[row, col];
                     isWhiteTile = !isWhiteTile; 
 
-                    string tileColour = isWhiteTile ? "#edecd1" : "#7d9c68";
+                    string tileColour = isWhiteTile ? whiteTile : blackTile;
                     string pieceColor = piece != null ? piece.Colour : "default";
                     string pieceSymbol = piece != null ? piece.Symbol.ToString() : " ";
 
@@ -203,13 +212,7 @@ namespace Chess_ConsoleApp
             Console.WriteLine("   ----------------------------------------------");
             Console.WriteLine($"     a    b    c    d    e    f    g    h");
 
-            // TO BE IMPLEMENTED
-            Console.WriteLine("\nGraveyard:\n");            
-            for(int i = 0; i < Graveyard.Count; i++)
-            {
-                Console.Write(Graveyard[i] + ", ");
-            }
-            Console.WriteLine("\n");
+            grave.Print();
 
         }
 
@@ -221,8 +224,8 @@ namespace Chess_ConsoleApp
 
             if (Board[targetRow, targetCol] != null)
             {
-                Graveyard.Add(Board[targetRow, targetCol].Symbol.ToString());
-
+                // Change to "AddTo" and only reference the piece
+                grave.AddTo(Board[targetRow, targetCol]);
                 Board[targetRow, targetCol] = null;
             }
 

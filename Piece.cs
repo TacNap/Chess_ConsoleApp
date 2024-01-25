@@ -290,7 +290,89 @@ namespace Chess_ConsoleApp
         }
         public override void CalculateMoveset(Piece[,] board)
         {
-            throw new NotImplementedException();
+            Moveset = new List<(int, int)>();
+
+            // Top-Left Diagonal
+            for (int i = 1; Row + i < board.GetLength(0) && Col - i >= 0; i++)
+            {
+                Moveset.Add((Row + i, Col - i));
+                if (board[Row + i, Col - i] != null)
+                {
+                    break; 
+                }
+            }
+
+            // Vertical Up
+            for (int i = 1; Row + i < board.GetLength(0); i++)
+            {
+                Moveset.Add((Row + i, Col));
+                if (board[Row+i, Col] != null)
+                {
+                    break; 
+                }
+                
+            }
+
+            // Top-Right Diagonal
+            for (int i = 1; Row + i < board.GetLength(0) && Col + i < board.GetLength(0); i++)
+            {
+                Moveset.Add((Row + i, Col + i));
+                if (board[Row + i, Col + i] != null)
+                {
+                    break; 
+                }
+            }
+
+            // Right Horizontal
+            for (int i = 1; Col + i < board.GetLength(0); i++)
+            {
+                Moveset.Add((Row, Col + i));
+                if (board[Row, Col + i] != null)
+                {
+                    break; 
+                }
+            }
+
+            // Bottom-Right Diagonal
+            for (int i = 1; Row - i >= 0 && Col + i < board.GetLength(0); i++)
+            {
+                Moveset.Add((Row - i, Col + i));
+                if (board[Row - i, Col + i] != null)
+                {
+                    break;
+                }
+            }
+
+            // Vertical Down
+            for (int i = 1; Row - i >= 0; i++)
+            {
+                Moveset.Add((Row - i, Col));
+                if (board[Row - i, Col] != null)
+                {
+                    break;
+                }
+            }
+
+            // Bottom-Left Diagonal
+            for (int i = 1; Row - i >= 0 && Col - i >= 0; i++)
+            {
+                Moveset.Add((Row - i, Col - i));
+                if (board[Row - i, Col - i] != null)
+                {
+                    break;
+                }
+            }
+
+            // Left Horizontal 
+            for (int i = 1; Col - i >= 0; i++)
+            {
+                Moveset.Add((Row, Col - i));
+                if (board[Row, Col - i] != null)
+                {
+                    break;
+                }
+            }
+
         }
     }
 
