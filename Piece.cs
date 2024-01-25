@@ -83,7 +83,7 @@ namespace Chess_ConsoleApp
             set;
         }
 
-        public abstract List<(int, int)> Moveset
+        public List<(int, int)> Moveset
         {
             get;
             set;
@@ -133,11 +133,6 @@ namespace Chess_ConsoleApp
 
         // PROPERTIES
         
-        // Holds the currently available spaces to move to
-        public override List<(int, int)> Moveset {
-            get;
-            set;
-        }
 
         // CONSTRUCTOR
         public Pawn(int row, int col, bool isWhite) : base(row, col, isWhite)
@@ -255,6 +250,97 @@ namespace Chess_ConsoleApp
         }
     }
 
+    public class Bishop : Piece
+    {
+        public Bishop(int row, int col, bool isWhite) : base(row, col, isWhite)
+        {
+            this.Type = "Bishop";
+            this.Row = row;
+            this.Col = col;
+            this.FirstMove = true;
+            if (isWhite)
+            {
+                this.Symbol = 'B'; // ♙
+                this.Colour = "#a61782";
+            }
+            else
+            {
+                this.Symbol = 'B'; // ♟
+                this.Colour = "black";
+            }
+        }
+
+        public override void CalculateMoveset(Piece[,] board)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class Knight : Piece
+    {
+        public Knight(int row, int col, bool isWhite) : base(row, col, isWhite)
+        {
+        }
+
+        public override void CalculateMoveset(Piece[,] board)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class Rook : Piece
+    {
+        public Rook(int row, int col, bool isWhite) : base(row, col, isWhite)
+        {
+        }
+
+        public override void CalculateMoveset(Piece[,] board)
+        {
+            // This can definitely be improved
+            Moveset = new List<(int, int)>();
+
+            // Top-Left Diagonal
+            for (int i = 1; Row + i < board.GetLength(0) && Col - i >= 0; i++)
+            {
+                Moveset.Add((Row + i, Col - i));
+                if (board[Row + i, Col - i] != null)
+                {
+                    break;
+                }
+            }
+
+            // Top-Right Diagonal
+            for (int i = 1; Row + i < board.GetLength(0) && Col + i < board.GetLength(0); i++)
+            {
+                Moveset.Add((Row + i, Col + i));
+                if (board[Row + i, Col + i] != null)
+                {
+                    break;
+                }
+            }
+
+            // Bottom-Right Diagonal
+            for (int i = 1; Row - i >= 0 && Col + i < board.GetLength(0); i++)
+            {
+                Moveset.Add((Row - i, Col + i));
+                if (board[Row - i, Col + i] != null)
+                {
+                    break;
+                }
+            }
+
+            // Bottom-Left Diagonal
+            for (int i = 1; Row - i >= 0 && Col - i >= 0; i++)
+            {
+                Moveset.Add((Row - i, Col - i));
+                if (board[Row - i, Col - i] != null)
+                {
+                    break;
+                }
+            }
+        }
+    }
+
     public class Queen : Piece
     {
         // FIELDS
@@ -262,12 +348,6 @@ namespace Chess_ConsoleApp
 
         // PROPERTIES
 
-        // Holds the currently available spaces to move to
-        public override List<(int, int)> Moveset
-        {
-            get;
-            set;
-        }
 
         // CONSTRUCTOR
         public Queen(int row, int col, bool isWhite) : base(row, col, isWhite)
@@ -288,92 +368,144 @@ namespace Chess_ConsoleApp
             }
 
         }
+
+        
         public override void CalculateMoveset(Piece[,] board)
         {
             Moveset = new List<(int, int)>();
 
-            // Top-Left Diagonal
-            for (int i = 1; Row + i < board.GetLength(0) && Col - i >= 0; i++)
-            {
-                Moveset.Add((Row + i, Col - i));
-                if (board[Row + i, Col - i] != null)
-                {
-                    break; 
-                }
-            }
-
-            // Vertical Up
-            for (int i = 1; Row + i < board.GetLength(0); i++)
-            {
-                Moveset.Add((Row + i, Col));
-                if (board[Row+i, Col] != null)
-                {
-                    break; 
-                }
-                
-            }
-
-            // Top-Right Diagonal
-            for (int i = 1; Row + i < board.GetLength(0) && Col + i < board.GetLength(0); i++)
-            {
-                Moveset.Add((Row + i, Col + i));
-                if (board[Row + i, Col + i] != null)
-                {
-                    break; 
-                }
-            }
-
-            // Right Horizontal
-            for (int i = 1; Col + i < board.GetLength(0); i++)
-            {
-                Moveset.Add((Row, Col + i));
-                if (board[Row, Col + i] != null)
-                {
-                    break; 
-                }
-            }
-
-            // Bottom-Right Diagonal
-            for (int i = 1; Row - i >= 0 && Col + i < board.GetLength(0); i++)
-            {
-                Moveset.Add((Row - i, Col + i));
-                if (board[Row - i, Col + i] != null)
-                {
-                    break;
-                }
-            }
-
-            // Vertical Down
-            for (int i = 1; Row - i >= 0; i++)
-            {
-                Moveset.Add((Row - i, Col));
-                if (board[Row - i, Col] != null)
-                {
-                    break;
-                }
-            }
-
-            // Bottom-Left Diagonal
-            for (int i = 1; Row - i >= 0 && Col - i >= 0; i++)
-            {
-                Moveset.Add((Row - i, Col - i));
-                if (board[Row - i, Col - i] != null)
-                {
-                    break;
-                }
-            }
-
-            // Left Horizontal 
-            for (int i = 1; Col - i >= 0; i++)
-            {
-                Moveset.Add((Row, Col - i));
-                if (board[Row, Col - i] != null)
-                {
-                    break;
-                }
-            }
-
+            AddMovesInDirection(board, 1, 0);   // Vertical Up
+            AddMovesInDirection(board, -1, 0);  // Vertical Down
+            AddMovesInDirection(board, 0, 1);   // Right Horizontal
+            AddMovesInDirection(board, 0, -1);  // Left Horizontal
+            AddMovesInDirection(board, 1, 1);   // Top-Right Diagonal
+            AddMovesInDirection(board, 1, -1);  // Top-Left Diagonal
+            AddMovesInDirection(board, -1, 1);  // Bottom-Right Diagonal
+            AddMovesInDirection(board, -1, -1); // Bottom-Left Diagonal
         }
+
+        // All subclasses should probably implement this
+        private void AddMovesInDirection(Piece[,] board, int rowDirection, int colDirection)
+        {
+            for (int i = 1; IsValidCoordinate(Row + i * rowDirection, Col + i * colDirection, board); i++)
+            {
+                Moveset.Add((Row + i * rowDirection, Col + i * colDirection));
+                if (board[Row + i * rowDirection, Col + i * colDirection] != null)
+                {
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Ensures the tile being determined is within the bounds of the board.
+        /// </summary>
+        /// <param name="row">The row of the tile that is being checked by CalculateMoveset</param>
+        /// <param name="col">The column of the tile that is being checked by CalculateMoveset</param>
+        /// <param name="board"></param>
+        /// <returns>true if within bounds of the board, false otherwise</returns>
+        private bool IsValidCoordinate(int row, int col, Piece[,] board)
+        {
+            return row >= 0 && row < board.GetLength(0) && col >= 0 && col < board.GetLength(1);
+        }
+
+        
+
+
+        //public override void CalculateMoveset(Piece[,] board)
+        //{
+        //    // This can definitely be improved
+        //    Moveset = new List<(int, int)>();
+
+        //    // Top-Left Diagonal
+        //    // Conditional reads: while next tile is within bounds AND piece (if not null) is on opposition...
+        //    for (int i = 1; Row + i < board.GetLength(0) && Col - i >= 0 && board[Row + i, Col - i]?.IsWhite != this.IsWhite; i++)
+        //    {
+        //        Moveset.Add((Row + i, Col - i));
+
+        //        if (board[Row + i, Col - i] != null)
+        //        {
+        //            break;
+        //        }
+        //    }
+
+        //    // Vertical Up
+        //    for (int i = 1; Row + i < board.GetLength(0) && board[Row + i, Col]?.IsWhite != this.IsWhite; i++)
+        //    {
+        //        Moveset.Add((Row + i, Col));
+
+        //        if (board[Row + i, Col] != null)
+        //        {
+        //            break;
+        //        }
+        //    }
+
+        //    // Top-Right Diagonal
+        //    for (int i = 1; Row + i < board.GetLength(0) && Col + i < board.GetLength(0) && board[Row + i, Col + i]?.IsWhite != this.IsWhite; i++)
+        //    {
+        //        if (board[Row + i, Col + i] != null)
+        //        {
+        //            if (board[Row + i, Col + i].IsWhite == this.IsWhite)
+        //            {
+        //                break;
+        //            }
+        //            Moveset.Add((Row + i, Col + i));
+        //            break; 
+        //        }
+        //        Moveset.Add((Row + i, Col + i));
+        //    }
+
+        //    // Right Horizontal
+        //    for (int i = 1; Col + i < board.GetLength(0); i++)
+        //    {
+        //        Moveset.Add((Row, Col + i));
+        //        if (board[Row, Col + i] != null)
+        //        {
+        //            break; 
+        //        }
+        //    }
+
+        //    // Bottom-Right Diagonal
+        //    for (int i = 1; Row - i >= 0 && Col + i < board.GetLength(0); i++)
+        //    {
+        //        Moveset.Add((Row - i, Col + i));
+        //        if (board[Row - i, Col + i] != null)
+        //        {
+        //            break;
+        //        }
+        //    }
+
+        //    // Vertical Down
+        //    for (int i = 1; Row - i >= 0; i++)
+        //    {
+        //        Moveset.Add((Row - i, Col));
+        //        if (board[Row - i, Col] != null)
+        //        {
+        //            break;
+        //        }
+        //    }
+
+        //    // Bottom-Left Diagonal
+        //    for (int i = 1; Row - i >= 0 && Col - i >= 0; i++)
+        //    {
+        //        Moveset.Add((Row - i, Col - i));
+        //        if (board[Row - i, Col - i] != null)
+        //        {
+        //            break;
+        //        }
+        //    }
+
+        //    // Left Horizontal 
+        //    for (int i = 1; Col - i >= 0; i++)
+        //    {
+        //        Moveset.Add((Row, Col - i));
+        //        if (board[Row, Col - i] != null)
+        //        {
+        //            break;
+        //        }
+        //    }
+
+        //}
     }
 
 

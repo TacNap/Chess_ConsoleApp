@@ -164,10 +164,15 @@ namespace Chess_ConsoleApp
 
             Board[0, 3] = new Queen(0, 3, true);
             Board[7, 3] = new Queen(7, 3, false);
+            //Board[0, 0] = new Rook(0, 0, true);
+            //Board[0, 7] = new Rook(0, 7, true);
+            //Board[7, 0] = new Rook(7, 0, false);
+            //Board[7, 7] = new Rook(7, 7, false);
+
 
             // DEBUG PIECES
-            Board[4, 4] = new Queen(4, 4, false);
-            Board[3, 3] = new Queen(3, 3, true);
+            Board[4, 4] = new Queen(4, 4, true);
+            Board[3, 3] = new Queen(3, 3, false);
 
 
         }
