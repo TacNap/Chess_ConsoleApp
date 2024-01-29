@@ -19,108 +19,85 @@ namespace Chess_ConsoleApp
         private bool firstMove;
 
         private static int count;
-        
+
         // PROPERTIES
-        // Type: King, Queen etc..
-        public string Type
-        {
-            get;
-            set;
-        }
-
-        // Symbol to be rendered to console
-        public char Symbol
-        {
-            get;
-            set;
-        }
-
-        // Unique ID for each instanced object
-        public int ID
-        {
-            get;
-            set;
-        }
-
-        // Total number of pieces in play
-        public static int Count
-        {
-            get;
-            set;
-
-        }
-
-        // Row Position on game board
-        public int Row // Will need validators
-        {
-            get;
-            set;
-        }
-
-        // Column Position on game board 
-        public int Col // Will need validators
-        {
-            get;
-            set;
-        }
-
-        public bool IsWhite
-        {
-            get;
-            private set;
-        }
-
-        public bool Living
-        {
-            get;
-            set;
-
-        }
-
-        public string Colour
-        {
-            get;
-            set;
-        }
-
-        public List<(int, int)> Moveset
-        {
-            get;
-            set;
-        }
-
-        public bool FirstMove
-        {
-            get;
-            set;
-        }
+        public string Type { get; set; } // Name of Piece
+        public char Symbol { get; set; } // Char that is representative of Piece
+        public int ID { get; set; }
+        public static int Count { get; private set; } // Total number of Pieces in play
+        public int Row { get; set; } // Current Row pos of Piece
+        public int Col { get; set; } // Current Col pos of Piece
+        public bool IsWhite { get; private set; } // Determines team
+        public bool Living { get; set; } // True if in play. Currently not used.
+        public string Colour { get; set; } // Hex value colour of font that will be printed to console
+        public List<(int, int)> Moveset { get; set; } // Holds the currently available moves for current Piece
+        public bool FirstMove { get; set; } // False after this Piece's first move is made
 
         // CONSTRUCTORS
-        public Piece(int row, int col, bool isWhite)
-        {
-            // Is it good practice to put these here?
-            this.Row = row;
-            this.Col = col;
-            this.IsWhite = isWhite;
-            this.ID = ++Count;
-            this.Living = true;
-            this.firstMove = true;
+        public Piece(int row, int col, bool isWhite) {
+            FirstMove = true;
+            Row = row;
+            Col = col;
+            ID = ++Count;
+            IsWhite = isWhite;
         }
 
         // METHODS
+
+        /// <summary>
+        /// Iterates in a single direction to provide 3 outcomes:
+        /// if the referenced cell HAS A PIECE and IT IS AN ENEMY, add the cell to the moveset, exit
+        /// if the referenced cell HAS A PIECE and IT IS A TEAMMATE, simply exit
+        /// otherwise, add the cell to the moveset, and continue iterating
+        /// </summary>
+        internal void AddMovesInDirection(Piece[,] board, int rowDirection, int colDirection)
+        {
+            for (int i = 1; IsValidCoordinate(Row + i * rowDirection, Col + i * colDirection, board); i++)
+            {
+                int tRow = Row + i * rowDirection;
+                int tCol = Col + i * colDirection;
+
+                if (board[tRow, tCol] != null && board[tRow, tCol].IsWhite != this.IsWhite) // Target is enemy
+                {
+                    Moveset.Add((tRow, tCol));
+                    break;
+                } else if (board[tRow, tCol] != null && board[tRow, tCol].IsWhite == this.IsWhite) // Target is tm
+                {
+                    break;
+                }
+
+                // Target is empty
+                Moveset.Add((tRow, tCol));
+            }
+        }
+
+        /// <summary>
+        /// Ensures that the supplied Row and Col values are within the bounds of the board
+        /// </summary>
+        internal bool IsValidCoordinate(int row, int col, Piece[,] board)
+        {
+            return row >= 0 && row < board.GetLength(0) && col >= 0 && col < board.GetLength(1);
+        }
+
+        /// <summary>
+        /// Prints some debug values about the given Piece to the console
+        /// </summary>
         public void PrintInfo()
         {
             Console.WriteLine("/ / / / / / / /");
-            Console.WriteLine("Info about this Piece:");
+            Console.WriteLine("Info about Piece ID: {0}", ID);
             Console.WriteLine("Type: {0}", Type);
             Console.WriteLine("Symbol: {0}", Symbol);
-            Console.WriteLine("ID: {0}", ID);
             Console.WriteLine("Current Location: Row:{0}, Col:{1}", Row, Col);
-            //Console.WriteLine("Total Pieces in play: {0}",Piece.Count);
+            Console.WriteLine($"First Move: {FirstMove}");
+            Console.WriteLine("Total Pieces in play: {0}",Piece.Count);
             Console.WriteLine("/ / / / / / / /");
 
         }
 
+        /// <summary>
+        /// Calculated each turn. Populates Moveset with all valid moves from the current position
+        /// </summary>
         public abstract void CalculateMoveset(Piece[,] board);
 
         
@@ -138,9 +115,6 @@ namespace Chess_ConsoleApp
         public Pawn(int row, int col, bool isWhite) : base(row, col, isWhite)
         {
             this.Type = "Pawn";
-            this.Row = row;
-            this.Col = col;
-            this.FirstMove = true;
             if (isWhite)
             {
                 this.Symbol = 'P'; // ♙
@@ -255,9 +229,6 @@ namespace Chess_ConsoleApp
         public Bishop(int row, int col, bool isWhite) : base(row, col, isWhite)
         {
             this.Type = "Bishop";
-            this.Row = row;
-            this.Col = col;
-            this.FirstMove = true;
             if (isWhite)
             {
                 this.Symbol = 'B'; // ♙
@@ -272,7 +243,12 @@ namespace Chess_ConsoleApp
 
         public override void CalculateMoveset(Piece[,] board)
         {
-            throw new NotImplementedException();
+            Moveset = new List<(int, int)>();
+
+            AddMovesInDirection(board, 1, 1);   // Top-Right Diagonal
+            AddMovesInDirection(board, 1, -1);  // Top-Left Diagonal
+            AddMovesInDirection(board, -1, 1);  // Bottom-Right Diagonal
+            AddMovesInDirection(board, -1, -1); // Bottom-Left Diagonal
         }
     }
 
@@ -280,11 +256,42 @@ namespace Chess_ConsoleApp
     {
         public Knight(int row, int col, bool isWhite) : base(row, col, isWhite)
         {
+            this.Type = "Knight";
+            if (isWhite)
+            {
+                this.Symbol = 'N'; // ♙
+                this.Colour = "#a61782";
+            }
+            else
+            {
+                this.Symbol = 'N'; // ♟
+                this.Colour = "black";
+            }
         }
 
         public override void CalculateMoveset(Piece[,] board)
         {
-            throw new NotImplementedException();
+            for(int i = 1; i <= 2; i++ )
+            {
+                // FORGOT TO ADD OUT OF BOUNDS VALIDATION
+                if (board[Row+i, Col+(3-i)] == null || board[Row+i, Col+(3-i)].IsWhite != this.IsWhite) 
+                {
+                    Moveset.Add((Row+i, Col+(3-i)));
+                }
+                if (board[Row - i, Col + (3 - i)] == null || board[Row - i, Col + (3 - i)].IsWhite != this.IsWhite)
+                {
+                    Moveset.Add((Row - i, Col + (3 - i)));
+                }
+
+                if (board[Row + i, Col - (3 - i)] == null || board[Row + i, Col - (3 - i)].IsWhite != this.IsWhite)
+                {
+                    Moveset.Add((Row + i, Col - (3 - i)));
+                }
+                if (board[Row - i, Col - (3 - i)] == null || board[Row - i, Col - (3 - i)].IsWhite != this.IsWhite)
+                {
+                    Moveset.Add((Row - i, Col - (3 - i)));
+                }
+            }
         }
     }
 
@@ -292,52 +299,27 @@ namespace Chess_ConsoleApp
     {
         public Rook(int row, int col, bool isWhite) : base(row, col, isWhite)
         {
+            this.Type = "Rook";
+            if (isWhite)
+            {
+                this.Symbol = 'R'; // ♙
+                this.Colour = "#a61782";
+            }
+            else
+            {
+                this.Symbol = 'R'; // ♟
+                this.Colour = "black";
+            }
         }
 
         public override void CalculateMoveset(Piece[,] board)
         {
-            // This can definitely be improved
             Moveset = new List<(int, int)>();
 
-            // Top-Left Diagonal
-            for (int i = 1; Row + i < board.GetLength(0) && Col - i >= 0; i++)
-            {
-                Moveset.Add((Row + i, Col - i));
-                if (board[Row + i, Col - i] != null)
-                {
-                    break;
-                }
-            }
-
-            // Top-Right Diagonal
-            for (int i = 1; Row + i < board.GetLength(0) && Col + i < board.GetLength(0); i++)
-            {
-                Moveset.Add((Row + i, Col + i));
-                if (board[Row + i, Col + i] != null)
-                {
-                    break;
-                }
-            }
-
-            // Bottom-Right Diagonal
-            for (int i = 1; Row - i >= 0 && Col + i < board.GetLength(0); i++)
-            {
-                Moveset.Add((Row - i, Col + i));
-                if (board[Row - i, Col + i] != null)
-                {
-                    break;
-                }
-            }
-
-            // Bottom-Left Diagonal
-            for (int i = 1; Row - i >= 0 && Col - i >= 0; i++)
-            {
-                Moveset.Add((Row - i, Col - i));
-                if (board[Row - i, Col - i] != null)
-                {
-                    break;
-                }
-            }
+            AddMovesInDirection(board, 1, 0);   // Vertical Up
+            AddMovesInDirection(board, -1, 0);  // Vertical Down
+            AddMovesInDirection(board, 0, 1);   // Right Horizontal
+            AddMovesInDirection(board, 0, -1);  // Left Horizontal
         }
     }
 
@@ -353,9 +335,6 @@ namespace Chess_ConsoleApp
         public Queen(int row, int col, bool isWhite) : base(row, col, isWhite)
         {
             this.Type = "Queen";
-            this.Row = row;
-            this.Col = col;
-            this.FirstMove = true;
             if (isWhite)
             {
                 this.Symbol = 'Q'; // ♙
@@ -369,7 +348,7 @@ namespace Chess_ConsoleApp
 
         }
 
-        
+
         public override void CalculateMoveset(Piece[,] board)
         {
             Moveset = new List<(int, int)>();
@@ -384,128 +363,6 @@ namespace Chess_ConsoleApp
             AddMovesInDirection(board, -1, -1); // Bottom-Left Diagonal
         }
 
-        // All subclasses should probably implement this
-        private void AddMovesInDirection(Piece[,] board, int rowDirection, int colDirection)
-        {
-            for (int i = 1; IsValidCoordinate(Row + i * rowDirection, Col + i * colDirection, board); i++)
-            {
-                Moveset.Add((Row + i * rowDirection, Col + i * colDirection));
-                if (board[Row + i * rowDirection, Col + i * colDirection] != null)
-                {
-                    break;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Ensures the tile being determined is within the bounds of the board.
-        /// </summary>
-        /// <param name="row">The row of the tile that is being checked by CalculateMoveset</param>
-        /// <param name="col">The column of the tile that is being checked by CalculateMoveset</param>
-        /// <param name="board"></param>
-        /// <returns>true if within bounds of the board, false otherwise</returns>
-        private bool IsValidCoordinate(int row, int col, Piece[,] board)
-        {
-            return row >= 0 && row < board.GetLength(0) && col >= 0 && col < board.GetLength(1);
-        }
-
-        
-
-
-        //public override void CalculateMoveset(Piece[,] board)
-        //{
-        //    // This can definitely be improved
-        //    Moveset = new List<(int, int)>();
-
-        //    // Top-Left Diagonal
-        //    // Conditional reads: while next tile is within bounds AND piece (if not null) is on opposition...
-        //    for (int i = 1; Row + i < board.GetLength(0) && Col - i >= 0 && board[Row + i, Col - i]?.IsWhite != this.IsWhite; i++)
-        //    {
-        //        Moveset.Add((Row + i, Col - i));
-
-        //        if (board[Row + i, Col - i] != null)
-        //        {
-        //            break;
-        //        }
-        //    }
-
-        //    // Vertical Up
-        //    for (int i = 1; Row + i < board.GetLength(0) && board[Row + i, Col]?.IsWhite != this.IsWhite; i++)
-        //    {
-        //        Moveset.Add((Row + i, Col));
-
-        //        if (board[Row + i, Col] != null)
-        //        {
-        //            break;
-        //        }
-        //    }
-
-        //    // Top-Right Diagonal
-        //    for (int i = 1; Row + i < board.GetLength(0) && Col + i < board.GetLength(0) && board[Row + i, Col + i]?.IsWhite != this.IsWhite; i++)
-        //    {
-        //        if (board[Row + i, Col + i] != null)
-        //        {
-        //            if (board[Row + i, Col + i].IsWhite == this.IsWhite)
-        //            {
-        //                break;
-        //            }
-        //            Moveset.Add((Row + i, Col + i));
-        //            break; 
-        //        }
-        //        Moveset.Add((Row + i, Col + i));
-        //    }
-
-        //    // Right Horizontal
-        //    for (int i = 1; Col + i < board.GetLength(0); i++)
-        //    {
-        //        Moveset.Add((Row, Col + i));
-        //        if (board[Row, Col + i] != null)
-        //        {
-        //            break; 
-        //        }
-        //    }
-
-        //    // Bottom-Right Diagonal
-        //    for (int i = 1; Row - i >= 0 && Col + i < board.GetLength(0); i++)
-        //    {
-        //        Moveset.Add((Row - i, Col + i));
-        //        if (board[Row - i, Col + i] != null)
-        //        {
-        //            break;
-        //        }
-        //    }
-
-        //    // Vertical Down
-        //    for (int i = 1; Row - i >= 0; i++)
-        //    {
-        //        Moveset.Add((Row - i, Col));
-        //        if (board[Row - i, Col] != null)
-        //        {
-        //            break;
-        //        }
-        //    }
-
-        //    // Bottom-Left Diagonal
-        //    for (int i = 1; Row - i >= 0 && Col - i >= 0; i++)
-        //    {
-        //        Moveset.Add((Row - i, Col - i));
-        //        if (board[Row - i, Col - i] != null)
-        //        {
-        //            break;
-        //        }
-        //    }
-
-        //    // Left Horizontal 
-        //    for (int i = 1; Col - i >= 0; i++)
-        //    {
-        //        Moveset.Add((Row, Col - i));
-        //        if (board[Row, Col - i] != null)
-        //        {
-        //            break;
-        //        }
-        //    }
-
-        //}
     }
 
 

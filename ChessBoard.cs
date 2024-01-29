@@ -77,7 +77,7 @@ namespace Chess_ConsoleApp
             // Take CLI Input. Validates only the input format
             ReceiveMoveInput(out int sourceRow, out int sourceCol, out int targetRow, out int targetCol);
 
-            if (Board[sourceRow, sourceCol] != null) // If there is no piece to move
+            if (Board[sourceRow, sourceCol] != null) // if there is a piece to move
             {
                 
                 // Check if valid move for that piece
@@ -155,24 +155,28 @@ namespace Chess_ConsoleApp
         {
             int pwRow = 1; // Row for White Pawns
             int pbRow = 6; // Row for Black Pawns
-            for(int i = 0; i < 8; i++)
+            for (int i = 0; i < 8; i++)
             {
                 Board[pwRow, i] = new Pawn(pwRow, i, true);
                 Board[pbRow, i] = new Pawn(pbRow, i, false);
 
             }
 
+            // Board[] = new Piece();
             Board[0, 3] = new Queen(0, 3, true);
             Board[7, 3] = new Queen(7, 3, false);
-            //Board[0, 0] = new Rook(0, 0, true);
-            //Board[0, 7] = new Rook(0, 7, true);
-            //Board[7, 0] = new Rook(7, 0, false);
-            //Board[7, 7] = new Rook(7, 7, false);
-
-
-            // DEBUG PIECES
-            Board[4, 4] = new Queen(4, 4, true);
-            Board[3, 3] = new Queen(3, 3, false);
+            Board[0, 0] = new Rook(0, 0, true);
+            Board[0, 7] = new Rook(0, 7, true);
+            Board[7, 0] = new Rook(7, 0, false);
+            Board[7, 7] = new Rook(7, 7, false);
+            Board[0, 5] = new Bishop(0, 5, true);
+            Board[0, 2] = new Bishop(0, 2, true);
+            Board[7, 5] = new Bishop(7, 5, false);
+            Board[7, 2] = new Bishop(7, 2, false);
+            Board[0, 1] = new Knight(0, 1, true);
+            Board[0, 6] = new Knight(0, 6, true);
+            Board[7, 1] = new Knight(7, 1, false);
+            Board[7, 6] = new Knight(7, 6, false);
 
 
         }
