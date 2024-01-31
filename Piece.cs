@@ -271,23 +271,23 @@ namespace Chess_ConsoleApp
 
         public override void CalculateMoveset(Piece[,] board)
         {
-            for(int i = 1; i <= 2; i++ )
+            Moveset = new List<(int, int)>();
+            for (int i = 1; i <= 2; i++ )
             {
-                // FORGOT TO ADD OUT OF BOUNDS VALIDATION
-                if (board[Row+i, Col+(3-i)] == null || board[Row+i, Col+(3-i)].IsWhite != this.IsWhite) 
+                if (IsValidCoordinate(Row + i, Col + (3 - i), board) && (board[Row+i, Col+(3-i)] == null || board[Row+i, Col+(3-i)].IsWhite != this.IsWhite)) 
                 {
-                    Moveset.Add((Row+i, Col+(3-i)));
+                    Moveset.Add((Row + i, Col + (3 - i)));
                 }
-                if (board[Row - i, Col + (3 - i)] == null || board[Row - i, Col + (3 - i)].IsWhite != this.IsWhite)
+                if (IsValidCoordinate(Row - i, Col + (3 - i), board) && (board[Row - i, Col + (3 - i)] == null || board[Row - i, Col + (3 - i)].IsWhite != this.IsWhite))
                 {
                     Moveset.Add((Row - i, Col + (3 - i)));
                 }
 
-                if (board[Row + i, Col - (3 - i)] == null || board[Row + i, Col - (3 - i)].IsWhite != this.IsWhite)
+                if (IsValidCoordinate(Row + i, Col - (3 - i), board) && (board[Row + i, Col - (3 - i)] == null || board[Row + i, Col - (3 - i)].IsWhite != this.IsWhite))
                 {
                     Moveset.Add((Row + i, Col - (3 - i)));
                 }
-                if (board[Row - i, Col - (3 - i)] == null || board[Row - i, Col - (3 - i)].IsWhite != this.IsWhite)
+                if (IsValidCoordinate(Row - i, Col - (3 - i), board) && (board[Row - i, Col - (3 - i)] == null || board[Row - i, Col - (3 - i)].IsWhite != this.IsWhite))
                 {
                     Moveset.Add((Row - i, Col - (3 - i)));
                 }
