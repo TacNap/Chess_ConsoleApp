@@ -14,17 +14,8 @@ namespace Chess_ConsoleApp
         private string blackColour = "black";
 
         // PROPERTIES
-        public List<char> GraveyardWhite // Requires Verification
-        {
-            get;
-            set;
-        }
-
-        public List<char> GraveyardBlack // Requires Verification
-        {
-            get;
-            set;
-        }
+        public List<char> GraveyardWhite { get; set; }
+        public List<char> GraveyardBlack { get; set; }
 
         // CONSTRUCTORS
         public Graveyard()

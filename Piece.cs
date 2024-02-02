@@ -12,8 +12,8 @@ namespace Chess_ConsoleApp
         private int id;
         private string type;
         private char symbol;
-        private int row;
-        private int col;
+        private int row; // Y Position
+        private int col; // X Position
         private bool isWhite; // Change to ENUM
         private bool living;
         private bool firstMove;
@@ -117,11 +117,11 @@ namespace Chess_ConsoleApp
             this.Type = "Pawn";
             if (isWhite)
             {
-                this.Symbol = 'P'; // ♙
+                this.Symbol = '\u2659'; 
                 this.Colour = "#a61782";
             } else
             {
-                this.Symbol = 'P'; // ♟
+                this.Symbol = '\u265F'; 
                 this.Colour = "black";
             }
             
@@ -231,12 +231,12 @@ namespace Chess_ConsoleApp
             this.Type = "Bishop";
             if (isWhite)
             {
-                this.Symbol = 'B'; // ♙
+                this.Symbol = '\u2657'; 
                 this.Colour = "#a61782";
             }
             else
             {
-                this.Symbol = 'B'; // ♟
+                this.Symbol = '\u265D'; 
                 this.Colour = "black";
             }
         }
@@ -259,12 +259,12 @@ namespace Chess_ConsoleApp
             this.Type = "Knight";
             if (isWhite)
             {
-                this.Symbol = 'N'; // ♙
+                this.Symbol = '\u2658'; 
                 this.Colour = "#a61782";
             }
             else
             {
-                this.Symbol = 'N'; // ♟
+                this.Symbol = '\u265E';
                 this.Colour = "black";
             }
         }
@@ -302,12 +302,12 @@ namespace Chess_ConsoleApp
             this.Type = "Rook";
             if (isWhite)
             {
-                this.Symbol = 'R'; // ♙
+                this.Symbol = '\u2656';
                 this.Colour = "#a61782";
             }
             else
             {
-                this.Symbol = 'R'; // ♟
+                this.Symbol = '\u265C'; 
                 this.Colour = "black";
             }
         }
@@ -337,12 +337,12 @@ namespace Chess_ConsoleApp
             this.Type = "Queen";
             if (isWhite)
             {
-                this.Symbol = 'Q'; // ♙
+                this.Symbol = '\u2655';
                 this.Colour = "#a61782";
             }
             else
             {
-                this.Symbol = 'Q'; // ♟
+                this.Symbol = '\u265B';
                 this.Colour = "black";
             }
 
@@ -365,5 +365,43 @@ namespace Chess_ConsoleApp
 
     }
 
+    public class King : Piece
+    {
+        // FIELDS
+        // OPERATORS
+        // CONSTRUCTOR
+        public King(int row, int col, bool isWhite) : base(row, col, isWhite)
+        {
+            this.Type = "King";
+            if (isWhite)
+            {
+                this.Symbol = '\u2654'; 
+                this.Colour = "#a61782";
+            }
+            else
+            {
+                this.Symbol = '\u265A'; 
+                this.Colour = "black";
+            }
 
+        }
+        // METHODS
+        public override void CalculateMoveset(Piece[,] board)
+        {
+            Moveset = new List<(int, int)>();
+
+            for(int i = -1; i <= 1; i++)
+            {
+                for(int j = -1; j <= 1; j++)
+                {
+                    if (IsValidCoordinate(Row + i, Col + j, board) &&
+                       (board[Row + i, Col + j] == null ||
+                        board[Row + i, Col + j].IsWhite != this.IsWhite))
+                    {
+                        Moveset.Add((Row + i, Col + j));
+                    }
+                }
+            }
+        }
+    }
 }

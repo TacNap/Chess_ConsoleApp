@@ -11,8 +11,6 @@ namespace Chess_ConsoleApp
     {
         // FIELDS
         private Piece[,] board;
-        private char whiteCell = '\u2591'; // ░ 
-        private char blackCell = '\u2588'; // █
         private Dictionary<string, int> dict;
         private Graveyard grave = new Graveyard();
 
@@ -21,29 +19,13 @@ namespace Chess_ConsoleApp
         // private int turnCounter;
 
         // PROPERTIES
-        public Piece[,] Board // Will need validators
-        {
-            get;
-            set;
-        }
+        public Piece[,] Board { get; set; }
     
-        public Dictionary<string, int> Dict
-        {
-            get;
-            set;
-        }
+        public Dictionary<string, int> Dict { get; set; }
 
-        private bool IsWhiteTurn
-        {
-            get;
-            set;
-        }
+        private bool IsWhiteTurn { get; set; }
 
-        private int TurnCounter
-        {
-            get;
-            set;
-        }
+        private int TurnCounter { get; set; } 
 
         // CONSTRUCTORS
         public ChessBoard()
@@ -53,14 +35,14 @@ namespace Chess_ConsoleApp
             TurnCounter = 1;
             Dict = new Dictionary<string, int>
                 {
-            {"a", 0},
-            {"b", 1},
-            {"c", 2},
-            {"d", 3},
-            {"e", 4},
-            {"f", 5},
-            {"g", 6},
-            {"h", 7},
+                    {"a", 0},
+                    {"b", 1},
+                    {"c", 2},
+                    {"d", 3},
+                    {"e", 4},
+                    {"f", 5},
+                    {"g", 6},
+                    {"h", 7},
                 };
         }
 
@@ -162,7 +144,7 @@ namespace Chess_ConsoleApp
 
             }
 
-            // Board[] = new Piece();
+            
             Board[0, 3] = new Queen(0, 3, true);
             Board[7, 3] = new Queen(7, 3, false);
             Board[0, 0] = new Rook(0, 0, true);
@@ -177,6 +159,8 @@ namespace Chess_ConsoleApp
             Board[0, 6] = new Knight(0, 6, true);
             Board[7, 1] = new Knight(7, 1, false);
             Board[7, 6] = new Knight(7, 6, false);
+            Board[0, 4] = new King(0, 4, true);
+            Board[7, 4] = new King(7, 4, false);
 
 
         }
