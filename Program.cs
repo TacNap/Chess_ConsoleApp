@@ -8,17 +8,15 @@ namespace Chess_ConsoleApp
     {
         static void Main(string[] args)
         {
-            ChessBoard board = new ChessBoard();
+            // Initialising
             Console.OutputEncoding = Encoding.Unicode;
-
-            // Testing Piece[8,8] for ChessBoard
-            board.InitBoard();
-            board.PrintBoard();
-
+            GameLogic Master = new GameLogic();
+            Master.Board.InitBoard();
+            Master.Board.PrintBoard();
 
             while (true)
             {
-                board.Iterate();
+                Master.Iterate();
             }
 
 
